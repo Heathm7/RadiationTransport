@@ -40,3 +40,14 @@ void Simulator::run() {
 		}
 	}
 }
+
+//Print results
+void Simulator::report() const {
+	int survived = numParticles - absorbedCount;
+	double survivalFraction = static_cast<double>(survived) / numParticles;
+
+	std::cout << "Particles simulated: " << numParticles << "\n";
+	std::cout << "Particles survived: " << survived << "\n";
+	std::cout << "Fraction survived: " << survivalFraction << "\n";
+
+}
