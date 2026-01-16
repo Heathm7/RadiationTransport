@@ -50,4 +50,9 @@ void Simulator::report() const {
 	std::cout << "Particles survived: " << survived << "\n";
 	std::cout << "Fraction survived: " << survivalFraction << "\n";
 
+	// Theoretical comparison for a single material (simple case)
+	if (!materials.empty()) {
+		double mu = -std::log(1.0 - materials[0].absorptionProb) / stepSize;
+		double theoretical = std::exp(-mu * materials[0].thickness);
+		std::cout << "Theoretical fraction (first material only): " << theoretical << "\n";
 }
