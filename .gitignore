@@ -1,0 +1,21 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+
+# Build folders
+x64/
+x86/
+Debug/
+Release/
+out/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+
+# OS
+Thumbs.db
+.DS_Store
