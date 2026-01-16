@@ -8,14 +8,14 @@ Simulator::Simulator(int numParticles_, double stepSize_)
 
 // Add a material to the simulation
 void Simulator::addMaterial(const Material& material) {
-	materials.push_back(materials);
+	materials.push_back(material);
 }
 
 void Simulator::run() {
 	absorbedCount = 0;
 
 	for (int i = 0; i < numParticles; i++) {
-		Particle particle :
+		Particle particle;
 
 		// Loop over each material
 		for (const auto& mat : materials) {
@@ -55,4 +55,6 @@ void Simulator::report() const {
 		double mu = -std::log(1.0 - materials[0].absorptionProb) / stepSize;
 		double theoretical = std::exp(-mu * materials[0].thickness);
 		std::cout << "Theoretical fraction (first material only): " << theoretical << "\n";
+	}
+
 }
