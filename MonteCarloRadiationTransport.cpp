@@ -8,19 +8,42 @@
 int main()
 {
     // Number of particles and step size
-    int numParticles = 10000;
-    double stepSize = 0.1;      // cm
+    int numParticles;
+    std::cout << "Enter number of particles to simulate: ";
+    std::cin >> numParticles;
+
+    double stepSize;
+    std::cout << "Enter step size in cm: ";
+    std::cin >> stepSize;
+
 
     // Create the simulator
     Simulator sim(numParticles, stepSize);
 
     // Add materials
-    Material lead("Lead", 2.0, 0.05);   //thickness 2cm, absorption probability 5% per step
-    Material water("Water", 5.0, 0.01); //thickness 5cm, absorption probability 1% per step
+    int numMaterials;
+    std::cout << "Enter number of materials: ";
+    std::cin >> numMaterials;
 
-    sim.addMaterial(lead);
-    sim.addMaterial(water);
-    
+    for (int i = 0; i < numMaterials; i++) {
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // clear buffer
+
+        std::string name;
+        std::cout << "Material " << i + 1 << " name: ";
+        std::getline(std::cin, name);
+
+        double thickness;
+        std::cout << "Thickness in cm: ";
+        std::cin >> thickness;
+
+        double absorptionProb;
+        std::cout << "Absorption probability per step (0-1): ";
+        std::cin >> absorptionProb;
+
+        sim.addMaterial(Material(name, thickness, absorptionProb));
+
+    } 
+
     // Run sim
     sim.run();
 

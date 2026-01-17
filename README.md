@@ -57,6 +57,28 @@ Theoretical fraction (first material only): 0.358486
 
 --
 
+## Interactive Simulation
+
+The simulator now allows the user to:
+
+1. Input the **number of particles** to simulate
+2. Input the **step size** in cm
+3. Input the **number of materials**
+4. For each material, input:
+	- Names
+	- Thickness (cm)
+	- Absorption probability per step (0-1)
+	
+This allows the user to simulate realistic shielding scenarios with multiple materials.
+
+
+---
+
+## Example Realistic Run
+
+- Particles: 
+- Step size: 
+
 ## File Structure
 
 /Header Files
