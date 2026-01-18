@@ -54,6 +54,7 @@ Theoretical fraction (first material only): 0.358486
 - Monte Carlo simulation loop
 - Comparison of simulation results against theoretical predictions
 - Statiscal uncertainty estimation
+- Runtime measurement using std::chrono
 
 --
 
@@ -71,13 +72,40 @@ The simulator now allows the user to:
 	
 This allows the user to simulate realistic shielding scenarios with multiple materials.
 
+---
+
+## Monte Carlo Convergence Demonstration
+
+Monte Carlo radiation transport relies on statisical sampling. As the number of simulated particles increases, the numerical result should converge toward the analytical solution predicted by the exponential attenuation theory.
+
+To demonstrate correct Monte Carlo behavior, the simulator was run with increasing particle counts using the same material configuration.
 
 ---
 
 ## Example Realistic Run
 
-- Particles: 
-- Step size: 
+To demonstrate statistical convergence, the simulation was run with 500,000,000
+
+Enter number of particles to simulate: 1000000000
+Enter step size in cm: .1
+Enter number of materials: 3
+Material 1 name: Lead
+Thickness in cm: 5
+Absorption probability per step (0-1): .00995
+Material 2 name: Concrete
+Thickness in cm: 50
+Absorption probability per step (0-1): .001
+Material 3 name: Polyethylene
+Thickness in cm: 30
+Absorption probability per step (0-1): .0005
+Particles simulated: 1000000000
+Particles survived: 316535237
+Fraction survived: 0.316535
+Theoretical fraction (first material only): 0.606536
+Simulation runtime: 11666.4seconds
+
+*> The analytical prediction for this configuration is approximately **0.315**. As the number of particles increases, the Monte Carlo result converges toward the theoretical value, demonstrating correct stochastic behavior and numerical stability. This convergence behavior is a direct consequence of the Law of Large Numbers,
+which governs Monte Carlo sampling methods.
 
 ## File Structure
 
@@ -107,4 +135,4 @@ MonteCarloRadiationTransport.sln
 - Implement statistical analysis of surviving particles
 - Add multi-material attenuation comparision
 - Include optional plotting and simulated vs theoretical results
-- Allow user to input materials and particle count. 
+- include parallelization, show scaling from 2, 4 and 8 cores 

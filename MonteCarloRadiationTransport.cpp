@@ -2,8 +2,10 @@
 //
 
 #include <iostream>
+#include <chrono>
 #include "Simulator.h"
 #include "Material.h"
+
 
 int main()
 {
@@ -44,11 +46,21 @@ int main()
 
     } 
 
+    // Timing start
+    auto start = std::chrono::high_resolution_clock::now();
+
     // Run sim
     sim.run();
 
+    auto end = std::chrono::high_resolution_clock::now();
+    // Timing end
+
     // Print results
     sim.report();
+
+    std::chrono::duration<double> elapsed = end - start;
+
+    std::cout << "Simulation runtime: " << elapsed.count() << "seconds" << "\n";
 
     return 0;
 }
