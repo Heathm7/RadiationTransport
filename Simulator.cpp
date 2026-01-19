@@ -1,4 +1,5 @@
 #include "Simulator.h"
+#include <cmath>
 
 Simulator::Simulator(int numParticles_, double stepSize_)
 	: numParticles(numParticles_), stepSize(stepSize_), rng(std::random_device{}()), dist(0.0, 1.0)
@@ -39,15 +40,31 @@ void Simulator::run() {
 				break;
 		}
 	}
+
+	survivedCount = numParticles - absorbedCount;
+}
+
+// Statistical analysis
+double Simulator::survivalProbability() const {
+	return static_cast<double>(survivedCount) / numParticles;
+}
+
+double Simulator::standardDeviation() const {
+	double p = survivalProbability();
+	
+	return std::sqrt(p * (1.0 - p));
+}
+
+double Simulator::standardError() const {
+	return standardDeviation() / std::sqrt(numParticles);
 }
 
 //Print results
 void Simulator::report() const {
-	int survived = numParticles - absorbedCount;
-	double survivalFraction = static_cast<double>(survived) / numParticles;
+	double survivalFraction = static_cast<double>(survivedCount) / numParticles;
 
 	std::cout << "Particles simulated: " << numParticles << "\n";
-	std::cout << "Particles survived: " << survived << "\n";
+	std::cout << "Particles survived: " << survivedCount << "\n";
 	std::cout << "Fraction survived: " << survivalFraction << "\n";
 
 	// Theoretical comparison for a single material (simple case)

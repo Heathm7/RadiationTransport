@@ -26,6 +26,7 @@ public:
 
 private:
 	int numParticles;					// Number of particles in simulation
+	int survivedCount;					// Number of survived particles
 	double stepSize;					// Step size in cm
 	std::vector<Material> materials;	// List of materials
 
