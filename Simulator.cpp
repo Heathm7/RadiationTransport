@@ -14,12 +14,15 @@ void Simulator::addMaterial(const Material& material) {
 
 void Simulator::run() {
 	absorbedCount = 0;
+	survivedCount = 0;
+	survivedPerMaterial.resize(materials.size(), numParticles);
 
 	for (int i = 0; i < numParticles; i++) {
 		Particle particle;
 
 		// Loop over each material
-		for (const auto& mat : materials) {
+		for (size_t m = 0; m < materials.size(); m++) {
+			const auto& mat = materials[m];
 			int steps = static_cast<int>(mat.thickness / stepSize);
 
 			for (int s = 0; s < steps; s++) {
@@ -36,6 +39,13 @@ void Simulator::run() {
 				}
 			}
 
+			// Update per-material survival
+			if (!particle.alive) {
+				survivedPerMaterial[m]--;	// Particle didnt survive this material
+				break;						// Particle stops moving to next material
+			}
+
+		
 			if (!particle.alive)
 				break;
 		}

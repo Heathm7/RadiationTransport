@@ -17,6 +17,7 @@ public:
 	void run();
 
 	// Print results and compare theoretical prediction
+	void reportPerMaterial() const; 
 	void report() const;
 
 	// Statistical analysis
@@ -25,10 +26,11 @@ public:
 	double standardError() const;
 
 private:
-	int numParticles;					// Number of particles in simulation
-	int survivedCount;					// Number of survived particles
-	double stepSize;					// Step size in cm
-	std::vector<Material> materials;	// List of materials
+	int numParticles;						// Number of particles in simulation
+	int survivedCount;						// Number of survived particles
+	double stepSize;						// Step size in cm
+	std::vector<Material> materials;		// List of materials
+	std::vector<int> survivedPerMaterial;	// number of particles survived per material
 
 	// Random number generator for absorption trials
 	std::mt19937 rng;
