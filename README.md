@@ -80,6 +80,15 @@ Monte Carlo radiation transport relies on statisical sampling. As the number of 
 
 To demonstrate correct Monte Carlo behavior, the simulator was run with increasing particle counts using the same material configuration.
 
+For a simulation with N amount of particles and multiple shielding materials (Lead, Concrete, Polyethylene, etc.), the following statistics can be retrieved:
+
+- Surival fraction: N_survived / N
+- Standard deviation: sqrt(survivalFraction(1 - survivalFraction))
+- Standard error: sigma / sqrt(N)
+- 95% confidence interval: [(sigma - stdError), (sigma + stdError)]
+
+The reported confidence interval demonstates converge as athe number of simulated particles increases. The Monte Carlo survival fraction is expected to be lower than the analytical solution for a single material due to additional attenuation from multiple shielding layers. 
+
 ---
 
 ## Example Realistic Run
