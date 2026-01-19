@@ -19,6 +19,11 @@ public:
 	// Print results and compare theoretical prediction
 	void report() const;
 
+	// Statistical analysis
+	double survivalProbability() const;
+	double standardDeviation() const;
+	double standardError() const;
+
 private:
 	int numParticles;					// Number of particles in simulation
 	double stepSize;					// Step size in cm
