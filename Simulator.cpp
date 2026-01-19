@@ -61,11 +61,21 @@ double Simulator::standardError() const {
 
 //Print results
 void Simulator::report() const {
-	double survivalFraction = static_cast<double>(survivedCount) / numParticles;
+	double p = survivalProbability();
+	double sigma = standardDeviation();
+	double stdError = standardError();
 
-	std::cout << "Particles simulated: " << numParticles << "\n";
-	std::cout << "Particles survived: " << survivedCount << "\n";
-	std::cout << "Fraction survived: " << survivalFraction << "\n";
+	double ci_low = p - 1.96 * stdError;
+	double ci_high = p + 1.96 * stdError;
+
+
+	std::cout << "Particles simulated: " << numParticles << '\n';
+	std::cout << "Particles survived: " << survivedCount << '\n';
+	std::cout << "Fraction survived: " << p << '\n';
+
+	std::cout << "Standard deviation: " << sigma << '\n';
+	std::cout << "Standard error: " << stdError << '\n';
+	std::cout << "95% confidence interval: [" << ci_low << ", " << ci_high << "]\n";
 
 	// Theoretical comparison for a single material (simple case)
 	if (!materials.empty()) {
