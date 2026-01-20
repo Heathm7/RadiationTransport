@@ -26,14 +26,18 @@ public:
 	double standardError() const;
 
 private:
-	int numParticles;						// Number of particles in simulation
-	int survivedCount;						// Number of survived particles
-	double stepSize;						// Step size in cm
-	std::vector<Material> materials;		// List of materials
-	std::vector<int> survivedPerMaterial;	// number of particles survived per material
+	int numParticles;								// Number of particles in simulation
+	int survivedCount;								// Number of survived particles
+	double stepSize;								// Step size in cm
+	std::vector<Material> materials;				// List of materials
+	std::vector<int> absorbedPerMaterial;
+	std::vector<int> survivedPerMaterial;			// number of particles survived per material
+	std::vector<double> survivalProbPerMaterial;	// fraction survived per material
+	std::vector<double> stdDevPerMaterial;			// standard deviation per material
+	std::vector<double> stdErrorPerMaterial;		// standard error per material
 
 	// Random number generator for absorption trials
-	std::mt19937 rng;
+	std::mt19937 rng;							// seed generator
 	std::uniform_real_distribution<double> dist;
 
 	// Track results

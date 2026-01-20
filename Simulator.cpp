@@ -2,9 +2,12 @@
 #include <cmath>
 
 Simulator::Simulator(int numParticles_, double stepSize_)
-	: numParticles(numParticles_), stepSize(stepSize_), rng(std::random_device{}()), dist(0.0, 1.0)
+	: numParticles(numParticles_), stepSize(stepSize_), survivedCount(0), absorbedCount(0)
 {
-
+	// RNG seeding
+	std::random_device rd;
+	rng.seed(rd());
+	dist = std::uniform_real_distribution<double>(0.0, 1.0);
 }
 
 // Add a material to the simulation
@@ -15,43 +18,45 @@ void Simulator::addMaterial(const Material& material) {
 void Simulator::run() {
 	absorbedCount = 0;
 	survivedCount = 0;
-	survivedPerMaterial.resize(materials.size(), numParticles);
+	
+	for (auto& mat : materials) {
+		mat.stats.entered = 0;
+		mat.stats.survived = 0;
+	}
 
+	// Loop over each particle
 	for (int i = 0; i < numParticles; i++) {
 		Particle particle;
+		particle.alive = true;
 
 		// Loop over each material
-		for (size_t m = 0; m < materials.size(); m++) {
-			const auto& mat = materials[m];
+		for (auto& mat : materials) {
+			if (!particle.alive) break;      // Stop if already absorbed
+
+			++mat.stats.entered;              // Particle reaches this material
+
 			int steps = static_cast<int>(mat.thickness / stepSize);
 
 			for (int s = 0; s < steps; s++) {
-				if (!particle.alive) break;
-
-				// Bernoulli trial: particle absorption
 				double r = dist(rng);
 				if (r < mat.absorptionProb) {
 					particle.alive = false;
 					absorbedCount++;
+					break;                     // stop this material
 				}
-				else {
-					particle.move(stepSize);
-				}
+				particle.move(stepSize);
 			}
 
-			// Update per-material survival
-			if (!particle.alive) {
-				survivedPerMaterial[m]--;	// Particle didnt survive this material
-				break;						// Particle stops moving to next material
+			if (particle.alive) {
+				++mat.stats.survived;          // survived this material
 			}
-
-		
-			if (!particle.alive)
-				break;
 		}
+	
+
+		if (particle.alive)
+			survivedCount++;	// Particle survived all materials
 	}
 
-	survivedCount = numParticles - absorbedCount;
 }
 
 // Statistical analysis
@@ -62,11 +67,13 @@ double Simulator::survivalProbability() const {
 double Simulator::standardDeviation() const {
 	double p = survivalProbability();
 	
-	return std::sqrt(p * (1.0 - p));
+	return (p == 0.0 || p == 1.0) ? 0.0 : std::sqrt(p * (1.0 - p));
 }
 
 double Simulator::standardError() const {
-	return standardDeviation() / std::sqrt(numParticles);
+	double sigma = standardDeviation();
+
+	return sigma / std::sqrt(numParticles);
 }
 
 //Print results
@@ -82,10 +89,29 @@ void Simulator::report() const {
 	std::cout << "Particles simulated: " << numParticles << '\n';
 	std::cout << "Particles survived: " << survivedCount << '\n';
 	std::cout << "Fraction survived: " << p << '\n';
-
 	std::cout << "Standard deviation: " << sigma << '\n';
 	std::cout << "Standard error: " << stdError << '\n';
 	std::cout << "95% confidence interval: [" << ci_low << ", " << ci_high << "]\n";
+
+	// Per-material survival statistics
+	std::cout << "Material survival fractions and statistics: " << '\n';
+
+	for (const auto& mat : materials) {
+		double fraction = mat.stats.entered > 0 ? static_cast<double>(mat.stats.survived) / mat.stats.entered : 0.0;
+		double matSigma = std::sqrt(fraction * (1.0 - fraction));
+		double matStdError = matSigma / std::sqrt(mat.stats.entered);
+		
+		double ciLow = fraction - 1.96 * matStdError;
+		double ciHigh = fraction + 1.96 * matStdError;
+
+		std::cout << mat.name << '\n';
+		std::cout << "Entered: " << mat.stats.entered << '\n';
+		std::cout << "Survived: " << mat.stats.survived << '\n';
+		std::cout << "Fraction Survived: " << fraction << '\n';
+		std::cout << "Standard deviation: " << matSigma << '\n';
+		std::cout << "Standard error: " << matStdError << '\n';
+		std::cout << "95% confidence interval: [" << ciLow << ", " << ciHigh << "]\n";
+	}
 
 	// Theoretical comparison for a single material (simple case)
 	if (!materials.empty()) {

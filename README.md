@@ -108,10 +108,36 @@ Material 3 name: Polyethylene
 Thickness in cm: 30
 Absorption probability per step (0-1): .0005
 Particles simulated: 1000000000
-Particles survived: 316535237
-Fraction survived: 0.316535
+Particles survived: 316558334
+Fraction survived: 0.316558
+Standard deviation: 0.465133
+Standard error: 1.47088e-05
+95% confidence interval: [0.31653, 0.316587]
+
+Material survival fractions and statistics:
+Lead
+Entered: 1000000000
+Survived: 0.606547
+Fraction Survived: 0.606547
+Standard deviation: 0.488516
+Standard error: 1.54482e-05
+95% confidence interval: [0.316528, 0.316589]
+Concrete
+Entered: 606546925
+Survived: 0.60636
+Fraction Survived: 0.60636
+Standard deviation: 0.488557
+Standard error: 1.98373e-05
+95% confidence interval: [0.316519, 0.316597]
+Polyethylene
+Entered: 367786000
+Survived: 0.860713
+Fraction Survived: 0.860713
+Standard deviation: 0.346245
+Standard error: 1.80545e-05
+95% confidence interval: [0.316523, 0.316594]
 Theoretical fraction (first material only): 0.606536
-Simulation runtime: 11666.4seconds
+Simulation runtime: 10214.3seconds
 
 *> The analytical prediction for this configuration is approximately **0.315**. As the number of particles increases, the Monte Carlo result converges toward the theoretical value, demonstrating correct stochastic behavior and numerical stability. This convergence behavior is a direct consequence of the Law of Large Numbers,
 which governs Monte Carlo sampling methods.
@@ -141,7 +167,6 @@ MonteCarloRadiationTransport.sln
 
 ## Next Steps
 
-- Implement statistical analysis of surviving particles
 - Add multi-material attenuation comparision
 - Include optional plotting and simulated vs theoretical results
 - include parallelization, show scaling from 2, 4 and 8 cores 
