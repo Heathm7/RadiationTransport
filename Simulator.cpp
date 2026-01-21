@@ -1,5 +1,12 @@
 #include "Simulator.h"
 #include <cmath>
+#include <random>
+#include <thread>
+
+struct ThreadStats {
+	int survived = 0;
+	std::vector<MaterialStats> matStats;
+};
 
 Simulator::Simulator(int numParticles_, double stepSize_)
 	: numParticles(numParticles_), stepSize(stepSize_), survivedCount(0), absorbedCount(0)
@@ -13,6 +20,50 @@ Simulator::Simulator(int numParticles_, double stepSize_)
 // Add a material to the simulation
 void Simulator::addMaterial(const Material& material) {
 	materials.push_back(material);
+}
+
+void Simulator::simulateParticles(
+	int numParticlesLocal,
+	std::vector<Material>& materials,
+	int& survivedLocal,
+	std::vector<MaterialStats>& localStats,
+	unsigned int seedOffset
+) {
+	std::mt19937 rng(5489u + seedOffset);
+	std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+	localStats.resize(materials.size());
+
+	for (int i = 0; i < numParticlesLocal; i++) {
+		Particle particle;
+		particle.alive = true;
+
+		for (size_t m = 0; m < materials.size(); m++) {
+			if (!particle.alive) break;
+
+			++localStats[m].entered;
+
+			const auto& mat = materials[m];
+			int steps = static_cast<int>(mat.thickness / stepSize);
+
+			for (int s = 0; s < steps; s++) {
+				double r = dist(rng);
+				if (r < mat.absorptionProb) {
+					particle.alive = false;
+					absorbedCount++;
+					break;
+				}
+				particle.move(stepSize);
+			}
+
+			if (particle.alive) {
+				++localStats[m].survived;
+			}
+		}
+
+		if (particle.alive)
+			survivedLocal++;
+	}
 }
 
 void Simulator::run() {
@@ -47,13 +98,12 @@ void Simulator::run() {
 				particle.move(stepSize);
 			}
 
-			if (particle.alive) {
+			if (particle.alive) 
 				++mat.stats.survived;          // survived this material
-			}
 		}
 	
 
-		if (particle.alive)
+		if (particle.alive) 
 			survivedCount++;	// Particle survived all materials
 	}
 
@@ -121,3 +171,5 @@ void Simulator::report() const {
 	}
 
 }
+
+
