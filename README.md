@@ -35,6 +35,7 @@ The simulator also computes statistical uncertainty allowing results to be inter
 - Statiscal uncertainty estimation
 - Runtime measurement using std::chrono
 - Scaled to billions of particles
+- Parellelization and Performance
 
 --
 
@@ -135,6 +136,19 @@ Simulation runtime: 10214.3seconds
 
 	This behavior is expected and reflects correct physical and statistical modeling of particle transport. 
 	
+--
+
+## Parallelization and Performance
+
+The simulator now supports multi-threaded execution, taking advantage of all available logical CPU cores.
+
+- The user is prompted to select the number of available threads detected on their system.
+- Particles are evenly distributed among the threads.
+- Each thread independently tracks
+	Particle processed
+	Particle entered and survived per material
+	Particle absorbed
+- After all threads complete, the results combined to produce the overall simulation statistics. 
 
 ## File Structure
 
@@ -162,4 +176,3 @@ MonteCarloRadiationTransport.sln
 ## Next Steps
 
 - Include optional plotting and simulated vs theoretical results
-- include parallelization, show scaling from 2, 4 and 8 cores 
