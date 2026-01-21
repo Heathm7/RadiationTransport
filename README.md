@@ -1,7 +1,7 @@
 ﻿## Monte Carlo Radiation Transport Simulator
 
 A C++ Monte Carlo simulation that models particle attenuation through shielding materials.
-This project highlights both **C++ Programming** and **Mathematical Modeling** skills.
+This project highlights **C++ Programming**, **probabilistic modeling**, and **statistical analysis** skills.
 
 --
 
@@ -9,9 +9,7 @@ This project highlights both **C++ Programming** and **Mathematical Modeling** s
 
 This simulation estimates the transmission and absorbtion of particles through a material slab using a probabilistic approach:
 
-- Each particle moves in discrete steps through the material.
-- At each step, the particle has a probability of being absorbed. 
-- The simulation approximates the **Exponential Attenuation Law**
+Each particle is tracked indivdually as it propagates through a stack of materials. Absorption is modeled probabilitistically, allowing the simulation to approximate the exponential attenuation law:
 
 \[
 I(x) - I_0 e^{-\mu x}
@@ -23,29 +21,9 @@ where:
 - \(I_0\)  = initial intensity 
 - \(\mu\)  = material's macroscopic absorption coefficient
 
---
-
-## Current Implementation
-
-- Particle.h - defines particles with position, energy, and alive status
-- Material.h - defines shielding materials with thickness and absorption probability
-- Simulator.h / Simulator.cpp - Monte Carlo loop that moves particles through materials and records absorptions
-- MonteCarloRadiationTransport.cpp - example fun of the simulator
+The simulator also computes statistical uncertainty allowing results to be interpreted rigorously. 
 
 --
-
-## Example Output
-
-Running the simulator with 10,000 particles, Lead (2cm, 5% absorption per step) and Water (5cm, 1% absorption per step):
-
-Particles simulated: 10000
-Particles survived: 2142
-Fraction survived: 0.2142
-Theoretical fraction (first material only): 0.358486
-
-*> Monte Carlo simulation is stochastic, so results vary slightly.
-*> Increasing particle count or decreasing step size improves accuracy.
-
 
 ## Key Features
 
@@ -53,8 +31,10 @@ Theoretical fraction (first material only): 0.358486
 - Clear separation of **Particle**, **Material**, and **Simulator**
 - Monte Carlo simulation loop
 - Comparison of simulation results against theoretical predictions
+- Pre-material statistic tracking
 - Statiscal uncertainty estimation
 - Runtime measurement using std::chrono
+- Scaled to billions of particles
 
 --
 
@@ -149,7 +129,7 @@ Standard error: 1.80545e-05
 Theoretical fraction (first material only): 0.606536
 Simulation runtime: 10214.3seconds
 
-*>	Although different material may exhibit similar survival fractions, their statistical uncertainties may differ. 
+	Although different material may exhibit similar survival fractions, their statistical uncertainties may differ. 
 	
 	Materials later in the stack recieve fewer particles due to attentuation in previous layers. Since standard error scaled as 1/ sqrt(N), materials with fewer entering particles naturally exhibit larger statistical uncertainty.
 
