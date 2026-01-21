@@ -16,6 +16,12 @@ public:
 	// Run the simulation
 	void run();
 
+	void simulateThread(
+		int numParticles,
+		ThreadStats& stats,
+		unsigned int seed
+	);
+
 	// Print results and compare theoretical prediction
 	void reportPerMaterial() const; 
 	void report() const;
@@ -43,11 +49,4 @@ private:
 	// Track results
 	int absorbedCount = 0;
 
-	void simulateParticles(
-		int numParticlesLocal,
-		std::vector<Material>& materials,
-		int& survivedLocal,
-		std::vector<MaterialStats>& localStats,
-		unsigned int seedOffset
-	);
 };
