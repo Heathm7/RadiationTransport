@@ -42,4 +42,12 @@ private:
 
 	// Track results
 	int absorbedCount = 0;
+
+	void simulateParticles(
+		int numParticlesLocal,
+		std::vector<Material>& materials,
+		int& survivedLocal,
+		std::vector<MaterialStats>& localStats,
+		unsigned int seedOffset
+	);
 };
