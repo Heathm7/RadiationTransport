@@ -3,11 +3,6 @@
 #include <random>
 #include <thread>
 
-struct ThreadStats {
-	int survived = 0;
-	std::vector<MaterialStats> matStats;
-};
-
 Simulator::Simulator(int numParticles_, double stepSize_)
 	: numParticles(numParticles_), stepSize(stepSize_), survivedCount(0), absorbedCount(0)
 {
@@ -23,46 +18,43 @@ void Simulator::addMaterial(const Material& material) {
 }
 
 void Simulator::simulateParticles(
-	int numParticlesLocal,
-	std::vector<Material>& materials,
-	int& survivedLocal,
-	std::vector<MaterialStats>& localStats,
-	unsigned int seedOffset
+	int localParticles,
+	ThreadStats& stats,
+	unsigned int seed
 ) {
-	std::mt19937 rng(5489u + seedOffset);
+	std::mt19937 rng(std::random_device{}() + seed);
 	std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-	localStats.resize(materials.size());
-
-	for (int i = 0; i < numParticlesLocal; i++) {
+	for (int i = 0; i < localParticles; i++) {
 		Particle particle;
 		particle.alive = true;
 
 		for (size_t m = 0; m < materials.size(); m++) {
 			if (!particle.alive) break;
 
-			++localStats[m].entered;
-
 			const auto& mat = materials[m];
+			auto& matStats = stats.matStats[m];
+			++matStats.entered;
+
 			int steps = static_cast<int>(mat.thickness / stepSize);
 
 			for (int s = 0; s < steps; s++) {
 				double r = dist(rng);
 				if (r < mat.absorptionProb) {
 					particle.alive = false;
-					absorbedCount++;
+					stats.absorbed++;
 					break;
 				}
 				particle.move(stepSize);
 			}
 
 			if (particle.alive) {
-				++localStats[m].survived;
+				++matStats.survived;
 			}
 		}
 
 		if (particle.alive)
-			survivedLocal++;
+			stats.survived++;
 	}
 }
 
@@ -75,38 +67,45 @@ void Simulator::run() {
 		mat.stats.survived = 0;
 	}
 
-	// Loop over each particle
-	for (int i = 0; i < numParticles; i++) {
-		Particle particle;
-		particle.alive = true;
+	// Determine number of threads in users system
+	unsigned int numThreads = std::thread::hardware_concurrency();
 
-		// Loop over each material
-		for (auto& mat : materials) {
-			if (!particle.alive) break;      // Stop if already absorbed
+	if (numThreads == 0) 
+		numThreads = 1;
 
-			++mat.stats.entered;              // Particle reaches this material
+	int particlesPerThread = numParticles / numThreads;
+	int remainder = numParticles % numThreads;
 
-			int steps = static_cast<int>(mat.thickness / stepSize);
+	std::vector<ThreadStats> threadStats(numThreads);
+	std::vector<std::thread> threads;
 
-			for (int s = 0; s < steps; s++) {
-				double r = dist(rng);
-				if (r < mat.absorptionProb) {
-					particle.alive = false;
-					absorbedCount++;
-					break;                     // stop this material
-				}
-				particle.move(stepSize);
-			}
+	for (unsigned int t = 0; t < numThreads; t++) {
+		threadStats[t].matStats.resize(materials.size());
 
-			if (particle.alive) 
-				++mat.stats.survived;          // survived this material
-		}
-	
+		int localParticles = particlesPerThread + (t < remainder ? 1 : 0);
 
-		if (particle.alive) 
-			survivedCount++;	// Particle survived all materials
+		threads.emplace_back(
+			&Simulator::simulateParticles,
+			this,
+			localParticles,
+			std::ref(threadStats[t]),
+			static_cast<unsigned int>(t)
+		);
 	}
 
+	for (auto& th : threads)
+		th.join();
+
+	// Add together
+	for (const auto& ts : threadStats) {
+		absorbedCount += ts.absorbed;
+		survivedCount += ts.survived;
+
+		for (size_t m = 0; m < materials.size(); m++) {
+			materials[m].stats.entered += ts.matStats[m].entered;
+			materials[m].stats.survived += ts.matStats[m].survived;
+		}
+	}
 }
 
 // Statistical analysis

@@ -161,6 +161,5 @@ MonteCarloRadiationTransport.sln
 
 ## Next Steps
 
-- Add multi-material attenuation comparision
 - Include optional plotting and simulated vs theoretical results
 - include parallelization, show scaling from 2, 4 and 8 cores 
