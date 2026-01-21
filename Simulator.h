@@ -6,20 +6,14 @@
 #include <iostream>
 
 struct ThreadStats {
-	long long absorbed = 0;
-	long long survived = 0;
-
-	struct MaterialStats {
-		long long entered = 0;
-		long long survived = 0;
-	};
-
+	int absorbed = 0;
+	int survived = 0;
 	std::vector<MaterialStats> matStats;
 };
 
 class Simulator {
 public:
-	Simulator(int numParticles, double stepSize);
+	Simulator(int numParticles, double stepSize, unsigned int numThreads_ = 0);
 
 	// Add a material to the simulation
 	void addMaterial(const Material& material);
@@ -36,6 +30,10 @@ public:
 	double standardDeviation() const;
 	double standardError() const;
 
+	void setNumThreads(unsigned int n) {
+		numThreads = n;
+	}
+
 private:
 	int numParticles;								// Number of particles in simulation
 	int survivedCount;								// Number of survived particles
@@ -46,6 +44,7 @@ private:
 	std::vector<double> survivalProbPerMaterial;	// fraction survived per material
 	std::vector<double> stdDevPerMaterial;			// standard deviation per material
 	std::vector<double> stdErrorPerMaterial;		// standard error per material
+	unsigned int numThreads = 1;
 
 	// Random number generator for absorption trials
 	std::mt19937 rng;							// seed generator

@@ -3,12 +3,30 @@
 
 #include <iostream>
 #include <chrono>
+#include <thread>
 #include "Simulator.h"
 #include "Material.h"
 
 
+
 int main()
 {
+    // Number of threads on users system
+    unsigned int maxThreads = std::thread::hardware_concurrency();
+    if (maxThreads == 0)
+        maxThreads = 1;
+
+    unsigned int numThreads;
+    std::cout << "Detected " << maxThreads << " logical cores." << '\n';
+    std::cout << "Enter number of threads to use (1-" << maxThreads << "): " << '\n';
+    std::cin >> numThreads;
+
+    if (numThreads < 1)
+        numThreads = 1;
+    
+    if (numThreads > maxThreads) 
+        numThreads = maxThreads;
+
     // Number of particles and step size
     int numParticles;
     std::cout << "Enter number of particles to simulate: ";
@@ -20,7 +38,7 @@ int main()
 
 
     // Create the simulator
-    Simulator sim(numParticles, stepSize);
+    Simulator sim(numParticles, stepSize, numThreads);
 
     // Add materials
     int numMaterials;

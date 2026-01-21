@@ -3,13 +3,18 @@
 #include <random>
 #include <thread>
 
-Simulator::Simulator(int numParticles_, double stepSize_)
+
+Simulator::Simulator(int numParticles_, double stepSize_, unsigned int numThreads_)
 	: numParticles(numParticles_), stepSize(stepSize_), survivedCount(0), absorbedCount(0)
 {
 	// RNG seeding
 	std::random_device rd;
 	rng.seed(rd());
 	dist = std::uniform_real_distribution<double>(0.0, 1.0);
+
+	numThreads = (numThreads_ > 0) ? numThreads_ : std::thread::hardware_concurrency();
+	if (numThreads == 0)
+		numThreads == 1;
 }
 
 // Add a material to the simulation
@@ -68,16 +73,11 @@ void Simulator::run() {
 	}
 
 	// Determine number of threads in users system
-	unsigned int numThreads = std::thread::hardware_concurrency();
-
-	if (numThreads == 0) 
-		numThreads = 1;
+	std::vector<ThreadStats> threadStats(numThreads);
+	std::vector<std::thread> threads;
 
 	int particlesPerThread = numParticles / numThreads;
 	int remainder = numParticles % numThreads;
-
-	std::vector<ThreadStats> threadStats(numThreads);
-	std::vector<std::thread> threads;
 
 	for (unsigned int t = 0; t < numThreads; t++) {
 		threadStats[t].matStats.resize(materials.size());
@@ -105,6 +105,10 @@ void Simulator::run() {
 			materials[m].stats.entered += ts.matStats[m].entered;
 			materials[m].stats.survived += ts.matStats[m].survived;
 		}
+	}
+
+	for (unsigned int t = 0; t < numThreads; t++) {
+		std::cout << "Thread " << t << " processed " << (threadStats[t].survived + threadStats[t].absorbed) << " particles." << '\n';
 	}
 }
 
