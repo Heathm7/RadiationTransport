@@ -175,4 +175,4 @@ MonteCarloRadiationTransport.sln
 
 ## Next Steps
 
-- Include optional plotting and simulated vs theoretical results
+- Restructure for front end development
