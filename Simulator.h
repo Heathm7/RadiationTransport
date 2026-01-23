@@ -1,9 +1,12 @@
 #pragma once
 #include "Particle.h"
 #include "Material.h"
+#include "SimulationStats.h"
 #include <vector>
 #include <random>
 #include <iostream>
+#include <functional>
+
 
 struct ThreadStats {
 	int absorbed = 0;
@@ -21,9 +24,13 @@ public:
 	// Run the simulation
 	void run();
 
+	/*
 	// Print results and compare theoretical prediction
 	void reportPerMaterial() const; 
 	void report() const;
+	*/
+
+	SimulationStats getStats() const;
 
 	// Statistical analysis
 	double survivalProbability() const;
@@ -33,6 +40,9 @@ public:
 	void setNumThreads(unsigned int n) {
 		numThreads = n;
 	}
+
+	using UpdateCallback = std::function<void(const SimulationStats&)>;
+	void setUpdateCallback(UpdateCallback cb);
 
 private:
 	int numParticles;								// Number of particles in simulation
@@ -59,4 +69,5 @@ private:
 		unsigned int seed
 	);
 
+	UpdateCallback updateCallback;
 };

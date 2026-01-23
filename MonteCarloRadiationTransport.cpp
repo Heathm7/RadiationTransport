@@ -6,7 +6,7 @@
 #include <thread>
 #include "Simulator.h"
 #include "Material.h"
-
+#include "ConsoleViewer.h"
 
 
 int main()
@@ -74,7 +74,7 @@ int main()
     // Timing end
 
     // Print results
-    sim.report();
+    ConsoleViewer::report(sim.getStats()); 
 
     std::chrono::duration<double> elapsed = end - start;
 

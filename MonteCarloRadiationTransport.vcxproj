@@ -131,8 +131,11 @@
     <ClCompile Include="Simulator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConsoleViewer.h" />
+    <ClInclude Include="Header.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="SimulationStats.h" />
     <ClInclude Include="Simulator.h" />
   </ItemGroup>
   <ItemGroup>

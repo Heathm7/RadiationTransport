@@ -22,11 +22,7 @@ void Simulator::addMaterial(const Material& material) {
 	materials.push_back(material);
 }
 
-void Simulator::simulateParticles(
-	int localParticles,
-	ThreadStats& stats,
-	unsigned int seed
-) {
+void Simulator::simulateParticles(int localParticles, ThreadStats& stats, unsigned int seed) {
 	std::mt19937 rng(std::random_device{}() + seed);
 	std::uniform_real_distribution<double> dist(0.0, 1.0);
 
@@ -60,6 +56,9 @@ void Simulator::simulateParticles(
 
 		if (particle.alive)
 			stats.survived++;
+		
+		if (updateCallback && i % 100 == 0)
+			updateCallback(getStats());
 	}
 }
 
@@ -106,10 +105,6 @@ void Simulator::run() {
 			materials[m].stats.survived += ts.matStats[m].survived;
 		}
 	}
-
-	for (unsigned int t = 0; t < numThreads; t++) {
-		std::cout << "Thread " << t << " processed " << (threadStats[t].survived + threadStats[t].absorbed) << " particles." << '\n';
-	}
 }
 
 // Statistical analysis
@@ -129,50 +124,25 @@ double Simulator::standardError() const {
 	return sigma / std::sqrt(numParticles);
 }
 
-//Print results
-void Simulator::report() const {
-	double p = survivalProbability();
-	double sigma = standardDeviation();
-	double stdError = standardError();
-
-	double ci_low = p - 1.96 * stdError;
-	double ci_high = p + 1.96 * stdError;
-
-
-	std::cout << "Particles simulated: " << numParticles << '\n';
-	std::cout << "Particles survived: " << survivedCount << '\n';
-	std::cout << "Fraction survived: " << p << '\n';
-	std::cout << "Standard deviation: " << sigma << '\n';
-	std::cout << "Standard error: " << stdError << '\n';
-	std::cout << "95% confidence interval: [" << ci_low << ", " << ci_high << "]\n";
-
-	// Per-material survival statistics
-	std::cout << "Material survival fractions and statistics: " << '\n';
-
+SimulationStats Simulator::getStats() const {
+	SimulationStats stats;
+	stats.numParticles = numParticles;
+	stats.survived = survivedCount;
+	stats.absorbed = absorbedCount;
+	
 	for (const auto& mat : materials) {
-		double fraction = mat.stats.entered > 0 ? static_cast<double>(mat.stats.survived) / mat.stats.entered : 0.0;
-		double matSigma = std::sqrt(fraction * (1.0 - fraction));
-		double matStdError = matSigma / std::sqrt(mat.stats.entered);
-		
-		double ciLow = fraction - 1.96 * matStdError;
-		double ciHigh = fraction + 1.96 * matStdError;
-
-		std::cout << mat.name << '\n';
-		std::cout << "Entered: " << mat.stats.entered << '\n';
-		std::cout << "Survived: " << mat.stats.survived << '\n';
-		std::cout << "Fraction Survived: " << fraction << '\n';
-		std::cout << "Standard deviation: " << matSigma << '\n';
-		std::cout << "Standard error: " << matStdError << '\n';
-		std::cout << "95% confidence interval: [" << ciLow << ", " << ciHigh << "]\n";
+		MaterialStatsSnapshot m;
+		m.name = mat.name;
+		m.entered = mat.stats.entered;
+		m.survived = mat.stats.survived;
+		stats.materials.push_back(m);
 	}
 
-	// Theoretical comparison for a single material (simple case)
 	if (!materials.empty()) {
 		double mu = -std::log(1.0 - materials[0].absorptionProb) / stepSize;
-		double theoretical = std::exp(-mu * materials[0].thickness);
-		std::cout << "Theoretical fraction (first material only): " << theoretical << "\n";
+		stats.theoreticalFirstMaterial = std::exp(-mu * materials[0].thickness);
 	}
 
+	return stats;
 }
-
 
