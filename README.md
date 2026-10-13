@@ -1,18 +1,18 @@
-﻿## Monte Carlo Radiation Transport Simulator
+## Monte Carlo Radiation Transport Simulator
 
 A C++ Monte Carlo simulation that models particle attenuation through shielding materials.
 This project highlights **C++ Programming**, **probabilistic modeling**, and **statistical analysis** skills.
 
---
+---
 
 ## Overview
 
-This simulation estimates the transmission and absorbtion of particles through a material slab using a probabilistic approach:
+This simulation estimates the transmission and absorption of particles through a material slab using a probabilistic approach:
 
-Each particle is tracked indivdually as it propagates through a stack of materials. Absorption is modeled probabilitistically, allowing the simulation to approximate the exponential attenuation law:
+Each particle is tracked individually as it propagates through a stack of materials. Absorption is modeled probabilistically, allowing the simulation to approximate the exponential attenuation law:
 
 \[
-I(x) - I_0 e^{-\mu x}
+I(x) = I_0 e^{-\mu x}
 \]
 
 where: 
@@ -21,9 +21,9 @@ where:
 - \(I_0\)  = initial intensity 
 - \(\mu\)  = material's macroscopic absorption coefficient
 
-The simulator also computes statistical uncertainty allowing results to be interpreted rigorously. 
+The simulator also computes statistical uncertainty, allowing results to be interpreted rigorously. 
 
---
+---
 
 ## Key Features
 
@@ -31,13 +31,13 @@ The simulator also computes statistical uncertainty allowing results to be inter
 - Clear separation of **Particle**, **Material**, and **Simulator**
 - Monte Carlo simulation loop
 - Comparison of simulation results against theoretical predictions
-- Pre-material statistic tracking
-- Statiscal uncertainty estimation
+- Per-material statistics tracking
+- Statistical uncertainty estimation
 - Runtime measurement using std::chrono
-- Scaled to billions of particles
-- Parellelization and Performance
+- Scaled to 1 billion particles
+- Multithreaded parallel execution
 
---
+---
 
 ## Interactive Simulation
 
@@ -52,40 +52,41 @@ The simulator now allows the user to:
 	- Absorption probability per step (0-1)
 	
 This allows the user to simulate realistic shielding scenarios with multiple materials.
-Each particle is simulate individually and propagated sequentially through all materials in order.
+Each particle is simulated individually and propagated sequentially through all materials in order.
 
 For each particle:
 1. The particle enters the first material.
 2. At each step inside the material, a Bernoulli trial determines whether the particle is absorbed.
 3. If absorbed, the particle is terminated and does not enter any subsequent materials.
-4. If the particle survives the entire thickness of a meterial, it proceeds to the next material. 
+4. If the particle survives the entire thickness of a material, it proceeds to the next material. 
 5. The particle survives the simulation only if it passes through all materials.
 
-This approach ensures that downstream materials only recieve particles that physically survive upstream attenuation.
+This approach ensures that downstream materials only receive particles that physically survive upstream attenuation.
 
 ---
 
 ## Monte Carlo Convergence Demonstration
 
-Monte Carlo radiation transport relies on statisical sampling. As the number of simulated particles increases, the numerical result should converge toward the analytical solution predicted by the exponential attenuation theory.
+Monte Carlo radiation transport relies on statistical sampling. As the number of simulated particles increases, the numerical result should converge toward the analytical solution predicted by the exponential attenuation theory.
 
 To demonstrate correct Monte Carlo behavior, the simulator was run with increasing particle counts using the same material configuration.
 
-For a simulation with N amount of particles and multiple shielding materials (Lead, Concrete, Polyethylene, etc.), the following statistics can be retrieved:
+For a simulation with N particles and multiple shielding materials (Lead, Concrete, Polyethylene, etc.), the following statistics can be retrieved:
 
-- Surival fraction: N_survived / N
-- Standard deviation: sqrt(survivalFraction(1 - survivalFraction))
-- Standard error: sigma / sqrt(N)
-- 95% confidence interval: [(sigma - stdError), (sigma + stdError)]
+- Survival fraction: p = N_survived / N
+- Standard deviation: sigma = sqrt(p(1 - p))
+- Standard error: SE = sigma / sqrt(N)
+- 95% confidence interval: [p - 1.96·SE, p + 1.96·SE]
 
-The reported confidence interval demonstates converge as athe number of simulated particles increases. The Monte Carlo survival fraction is expected to be lower than the analytical solution for a single material due to additional attenuation from multiple shielding layers. 
+The reported confidence interval narrows as the number of simulated particles increases, demonstrating convergence. The Monte Carlo survival fraction is expected to be lower than the analytical solution for a single material due to additional attenuation from multiple shielding layers. 
 
 ---
 
 ## Example Realistic Run
 
-To demonstrate statistical convergence, the simulation was run with 500,000,000
+To demonstrate statistical convergence, the simulation was run with 1,000,000,000 particles across three materials:
 
+```
 Enter number of particles to simulate: 1000000000
 Enter step size in cm: .1
 Enter number of materials: 3
@@ -129,14 +130,15 @@ Standard error: 1.80545e-05
 95% confidence interval: [0.316523, 0.316594]
 Theoretical fraction (first material only): 0.606536
 Simulation runtime: 10214.3seconds
+```
 
-	Although different material may exhibit similar survival fractions, their statistical uncertainties may differ. 
+Although different materials may exhibit similar survival fractions, their statistical uncertainties may differ. 
 	
-	Materials later in the stack recieve fewer particles due to attentuation in previous layers. Since standard error scaled as 1/ sqrt(N), materials with fewer entering particles naturally exhibit larger statistical uncertainty.
+Materials later in the stack receive fewer particles due to attenuation in previous layers. Since standard error scales as 1/sqrt(N), materials with fewer entering particles naturally exhibit larger statistical uncertainty.
 
-	This behavior is expected and reflects correct physical and statistical modeling of particle transport. 
+This behavior is expected and reflects correct physical and statistical modeling of particle transport. 
 	
---
+---
 
 ## Parallelization and Performance
 
@@ -144,34 +146,36 @@ The simulator now supports multi-threaded execution, taking advantage of all ava
 
 - The user is prompted to select the number of available threads detected on their system.
 - Particles are evenly distributed among the threads.
-- Each thread independently tracks
-	Particle processed
-	Particle entered and survived per material
-	Particle absorbed
-- After all threads complete, the results combined to produce the overall simulation statistics. 
+- Each thread independently tracks:
+  - Particles processed
+  - Particles entered and survived per material
+  - Particles absorbed
+- After all threads complete, the results are combined to produce the overall simulation statistics. 
 
 ## File Structure
 
-/Header Files
-Particle.h
-Material.h
-Simulator.h
-/Source Files
-simulator.cpp
-MonteCarloRadiationTransport.cpp
+```
+Header Files/
+  Particle.h
+  Material.h
+  Simulator.h
+Source Files/
+  Simulator.cpp
+  MonteCarloRadiationTransport.cpp
 .gitignore
 README.md
 MonteCarloRadiationTransport.sln
+```
 
---
+---
 
 ## Technologies
 
 - C++17
 - Visual Studio 2022 (MSVC)
-- Git + Github for version control
+- Git + GitHub for version control
 
---
+---
 
 ## Next Steps
 
